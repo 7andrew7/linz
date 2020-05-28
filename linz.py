@@ -55,7 +55,8 @@ def verify(sched, verifier):
     # From node_id (start time) to causally later events
     edges = defaultdict(list)
     nodes = Counter() # in-degree
-    
+
+    # Step 1: Formulate the real-time partial order graph.
     for i, op in enumerate(sched):
         if op._type == OpType.BEGIN:
             assert op.thread not in open_events
@@ -73,7 +74,7 @@ def verify(sched, verifier):
         else:
             assert False
 
-    # Verify the model for all legal linear orderings
+    # Step 2: verify the model for all linear orderings
     for path in topological_sorts(nodes, edges):
         vf = verifier()
         print(path)
@@ -105,7 +106,7 @@ sched2 = [
     Op('t2', OpType.END),
     Op('t1', OpType.END),
     Op('t1', OpType.BEGIN, StackVerifier.push, 3, None),
-    Op('t1', OpType.END, StackVerifier.push, 3, None),
+    Op('t1', OpType.END),
     Op('t1', OpType.BEGIN, StackVerifier.pop, None, 1),
     Op('t2', OpType.BEGIN, StackVerifier.pop, None, 3),
     Op('t1', OpType.END),
